@@ -16,9 +16,17 @@ def hello_world(request):
 
 
 class CreateAccountView(APIView):
-    def post(self, request):
+    def put(self, request):
         serializer = CreateAccountSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CreateSurveyView(APIView):
+    def put(self,request):
+        return HttpResponse("ok")
+    
+class ReadSurveyView(APIView):
+    def post(self,request):
+        return HttpResponse("ok")
