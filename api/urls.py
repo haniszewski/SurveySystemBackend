@@ -1,7 +1,8 @@
 from django.urls import path
 from rest_framework.schemas import get_schema_view
+from rest_framework_simplejwt import views as jwt_views
 
-from .views import hello_world
+from .views import hello_world, CreateAccountView
 
 urlpatterns = [
     # ...
@@ -14,5 +15,7 @@ urlpatterns = [
         version="1.0.0"
     ), name='openapi-schema'),
     path('',view=hello_world),
+    path('account/create',view=CreateAccountView.as_view()),
+    path('account/login',view=jwt_views.TokenObtainPairView.as_view()),
     # ...
 ]
