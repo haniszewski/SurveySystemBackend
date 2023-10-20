@@ -34,7 +34,7 @@ class CreateSurveyView(APIView):
     def put(self,request):
         return HttpResponse("ok")
     
-class GetAllSurveyByUserView(APIView):
+class GetAllSurveyByOwnerView(APIView):
     def get(self,request):
         return HttpResponse("ok")
     
