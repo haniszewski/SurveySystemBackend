@@ -1,4 +1,5 @@
 # from django.shortcuts import render
+from django.db import IntegrityError
 from django.http.response import HttpResponse
 from django.views.decorators.http import require_http_methods
 
@@ -19,7 +20,10 @@ class CreateAccountView(APIView):
     def put(self, request):
         serializer = CreateAccountSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            try:
+                user = serializer.save()
+            except IntegrityError as err:
+                return Response("",status=status.HTTP_409_CONFLICT)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
