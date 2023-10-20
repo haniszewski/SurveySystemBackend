@@ -22,14 +22,14 @@ class CreateAccountView(APIView):
         serializer = CreateAccountSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                duplicate = User.objects.get(email=serializer.email)
                 user = serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except User.DoesNotExist as err:
-                return Response("",status=status.HTTP_409_CONFLICT)
+            except IntegrityError:
+                return Response({"detail": "Email already exists."}, status=status.HTTP_409_CONFLICT)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+      
 class CreateSurveyView(APIView):
     def put(self,request):
         return HttpResponse("ok")
