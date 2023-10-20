@@ -34,6 +34,10 @@ class CreateSurveyView(APIView):
     def put(self,request):
         return HttpResponse("ok")
     
+class GetAllSurveyByUserView(APIView):
+    def get(self,request):
+        return HttpResponse("ok")
+    
 class ReadSurveyView(APIView):
     def post(self,request):
         return HttpResponse("ok")
