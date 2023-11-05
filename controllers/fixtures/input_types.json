@@ -1,0 +1,45 @@
+[
+    {
+      "model": "controllers.inputtype",
+      "pk": 1,
+      "fields": {
+        "name": "single select"
+      }
+    },
+    {
+      "model": "controllers.inputtype",
+      "pk": 2,
+      "fields": {
+        "name": "check box (multi select)"
+      }
+    },
+    {
+      "model": "controllers.inputtype",
+      "pk": 3,
+      "fields": {
+        "name": "number"
+      }
+    },
+    {
+      "model": "controllers.inputtype",
+      "pk": 4,
+      "fields": {
+        "name": "text"
+      }
+    },
+    {
+      "model": "controllers.inputtype",
+      "pk": 5,
+      "fields": {
+        "name": "date"
+      }
+    },
+    {
+      "model": "controllers.inputtype",
+      "pk": 6,
+      "fields": {
+        "name": "date range"
+      }
+    }
+  ]
+  
