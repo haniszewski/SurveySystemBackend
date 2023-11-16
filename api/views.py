@@ -3,6 +3,7 @@ from typing import Dict, Any
 from django.db import IntegrityError
 from django.http.response import HttpResponse
 from django.views.decorators.http import require_http_methods
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -19,31 +20,34 @@ def hello_world(request):
     return HttpResponse(content="OK")
 
 
-class CreateAccountView(APIView):
-    def put(self, request):
-        serializer = CreateAccountSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                user = serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except IntegrityError:
-                return Response({"detail": "Email already exists."}, status=status.HTTP_409_CONFLICT)
+ 
+# class CreateAccountView(APIView):
+#     def put(self, request):
+#         serializer = CreateAccountSerializer(data=request.data)
+#         if serializer.is_valid():
+#             try:
+#                 user = serializer.save()
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             except IntegrityError:
+#                 return Response({"detail": "Email already exists."}, status=status.HTTP_409_CONFLICT)
             
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CreateSurveyView(APIView):
+    permission_classes = [IsAuthenticated]    
     
     def post(self, request, *args, **kwargs):
         serializer = SurveySerializer(data=request.data)
+        user = request.user
         if serializer.is_valid():
             # Start Database transaction
             with transaction.atomic():
                 survey = Survey.objects.create(
-                    name=serializer.validated_data['name'],
-                    start_date=serializer.validated_data['start_date'],
-                    end_date=serializer.validated_data['end_date']
+                    name=serializer.validated_data['name'], # type: ignore
+                    start_date=serializer.validated_data['start_date'], # type: ignore
+                    end_date=serializer.validated_data['end_date'] # type: ignore
                 )
-                for form_data in serializer.validated_data['forms']:
+                for form_data in serializer.validated_data['forms']: # type: ignore
                     form_input = FormInput.objects.create(
                         survey=survey,
                         question_type=form_data['question_type'],
@@ -54,15 +58,14 @@ class CreateSurveyView(APIView):
                     # If choices empty throw error
                     for choice_data in form_data['choices']:
                         FormInputChoice.objects.create(
-                            form=form_input,
+                            form_input=form_input,
                             option_text=choice_data['option_text']
-                        )
-                
+                        )                
                 # TODO add current user as owner of survey
-                # SurveyOwners.objects.create(user=request.user, survey=survey)
+                permission = SurveyPermissions.objects.get(id=1)
+                SurveyOwners.objects.create(user=request.user, survey=survey, permissions=permission)
                 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+            return Response(serializer.data, status=status.HTTP_201_CREATED)        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class GetAllSurveyByOwnerView(APIView):

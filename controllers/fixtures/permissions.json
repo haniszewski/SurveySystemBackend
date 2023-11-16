@@ -1,0 +1,23 @@
+[
+    {
+        "model": "controllers.SurveyPermissions",
+        "pk": 1,
+        "fields": {
+            "name": "creator"
+        }
+    },
+    {
+        "model": "controllers.SurveyPermissions",
+        "pk": 2,
+        "fields": {
+            "name": "owner"
+        }
+    },
+    {
+        "model": "controllers.SurveyPermissions",
+        "pk": 3,
+        "fields": {
+            "name": "reader"
+        }
+    }
+]

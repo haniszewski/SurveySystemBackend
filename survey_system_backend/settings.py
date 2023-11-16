@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -35,6 +36,8 @@ ALLOWED_HOSTS = []
 if os.environ.get("ALLOWED_HOSTS"):
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
+AUTH_USER_MODEL = 'controllers.SystemUser'
+
 
 # Application definition
 
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'controllers',
     'api'
 ]
@@ -103,6 +107,26 @@ else:
         }
     }
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=31),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

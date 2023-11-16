@@ -1,5 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+class SystemUser(AbstractUser):
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
 
 class Survey(models.Model):
     name = models.CharField(max_length=255, help_text="Enter the name of the survey")
@@ -10,9 +14,8 @@ class Survey(models.Model):
 class SurveyPermissions(models.Model):
     name = models.CharField(max_length=255, help_text="Enter the name of the survey")
     
-
 class SurveyOwners(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(SystemUser, on_delete=models.PROTECT)
     survey = models.ForeignKey(Survey,on_delete=models.PROTECT)
     permissions = models.ForeignKey(SurveyPermissions,on_delete=models.PROTECT)
     
@@ -32,7 +35,7 @@ class FormInput(models.Model):
 
 
 class FormInputChoice(models.Model):
-    form = models.ForeignKey(FormInput, on_delete=models.CASCADE, related_name='choices')
+    form_input = models.ForeignKey(FormInput, on_delete=models.CASCADE, related_name='choices')
     option_text = models.CharField(max_length=255, help_text="Enter the text for this choice",null=True)
     
 
