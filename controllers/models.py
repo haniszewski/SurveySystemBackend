@@ -4,12 +4,17 @@ from django.contrib.auth.models import AbstractUser
 class SystemUser(AbstractUser):
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
+    
+class SurveyStatus(models.Model):
+    name = models.CharField(max_length=255)
 
 class Survey(models.Model):
     name = models.CharField(max_length=255, help_text="Enter the name of the survey")
+    # status = models.FloatField(SurveyStatus, on_delete=models.PROTECT)
     start_date = models.DateField(help_text="Enter the start date of the survey")
     end_date = models.DateField(help_text="Enter the end date of the survey")
     salt = models.CharField(max_length=255, help_text="abc",default="abc")
+    
     
 class SurveyPermissions(models.Model):
     name = models.CharField(max_length=255, help_text="Enter the name of the survey")
@@ -29,14 +34,15 @@ class InputType(models.Model):
 
 class FormInput(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name='forms')
-    question_type = models.ForeignKey(InputType, on_delete=models.CASCADE, related_name='forms')
+    type = models.ForeignKey(InputType, on_delete=models.CASCADE, related_name='forms')
     order = models.IntegerField()
-    question_text = models.TextField(help_text="Enter the text for the question")
+    text = models.TextField(help_text="Enter the text for the question")
 
 
 class FormInputChoice(models.Model):
-    form_input = models.ForeignKey(FormInput, on_delete=models.CASCADE, related_name='choices')
-    option_text = models.CharField(max_length=255, help_text="Enter the text for this choice",null=True)
+    order = models.IntegerField(null=False)
+    input = models.ForeignKey(FormInput, on_delete=models.CASCADE, related_name='choices')
+    text = models.CharField(max_length=255, help_text="Enter the text for this choice",null=True)
     
 
 class SurveyParticipantAnswer(models.Model):
@@ -44,5 +50,5 @@ class SurveyParticipantAnswer(models.Model):
     value_float = models.FloatField(null=True)
     value_int = models.IntegerField(null=True)
     value_text = models.TextField(null=True)
-    participant = models.ForeignKey(SurveyParticipants, on_delete=models.PROTECT, null=False)
+    participant = models.ForeignKey(SurveyParticipants, on_delete=models.PROTECT, null=True)
     

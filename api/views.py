@@ -37,7 +37,7 @@ class CreateSurveyView(APIView):
     permission_classes = [IsAuthenticated]    
     
     def post(self, request, *args, **kwargs):
-        serializer = SurveySerializer(data=request.data)
+        serializer = SurveyCreateSerializer(data=request.data)
         user = request.user
         if serializer.is_valid():
             # Start Database transaction
@@ -47,19 +47,20 @@ class CreateSurveyView(APIView):
                     start_date=serializer.validated_data['start_date'], # type: ignore
                     end_date=serializer.validated_data['end_date'] # type: ignore
                 )
-                for form_data in serializer.validated_data['forms']: # type: ignore
+                for form_data in serializer.validated_data['questions']: # type: ignore
                     form_input = FormInput.objects.create(
                         survey=survey,
-                        question_type=form_data['question_type'],
+                        type=form_data['type'],
                         order=form_data['order'],
-                        question_text=form_data['question_text']
+                        text=form_data['text']
                     )
                     
                     # If choices empty throw error
                     for choice_data in form_data['choices']:
                         FormInputChoice.objects.create(
-                            form_input=form_input,
-                            option_text=choice_data['option_text']
+                            input=form_input,
+                            text=choice_data['text'],
+                            order=choice_data['order']
                         )                
                 # TODO add current user as owner of survey
                 permission = SurveyPermissions.objects.get(id=1)
@@ -75,3 +76,35 @@ class GetAllSurveyByOwnerView(APIView):
 class ReadSurveyView(APIView):
     def post(self,request):
         return HttpResponse("ok")
+    
+    
+class SurveyGetView(APIView):
+    def get(self, request, pk):
+        try:
+            survey = Survey.objects.get(pk=pk)
+            serializer = SurveyGetSerializer(survey)
+            return Response(serializer.data)
+        except Survey.DoesNotExist:
+            return Response({'error': 'Survey not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+class AnswerSubmissionView(APIView):
+    def post(self, request, survey_id):
+        try:
+            survey = Survey.objects.get(pk=survey_id)
+        except Survey.DoesNotExist:
+            return Response({'error': 'Survey not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        questions = FormInput.objects.filter(survey=survey)
+        if 'answers' not in request.data or len(request.data['answers']) != questions.count():
+            return Response({'error': 'Answers for all questions are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        responses = []
+        for answer_data in request.data['answers']:
+            serializer = AnswerSubmissionSerializer(data=answer_data)
+            if serializer.is_valid():
+                serializer.save()
+                responses.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(responses, status=status.HTTP_201_CREATED)
