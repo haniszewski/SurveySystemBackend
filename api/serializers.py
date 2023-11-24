@@ -9,6 +9,18 @@ class FormInputChoiceSerializer(serializers.ModelSerializer):
         fields = ('order', 'text',)
 
 
+class CreateFormInputSerializer(serializers.ModelSerializer):
+    choices = FormInputChoiceSerializer(many=True, required=False)
+    details = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True)
+    placeholder = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True)
+
+    class Meta:
+        model = FormInput
+        fields = ('type', 'order', 'text', 'details', 'placeholder', 'choices')
+
+
 class FormInputSerializer(serializers.ModelSerializer):
     choices = FormInputChoiceSerializer(many=True, required=False)
 
@@ -16,15 +28,17 @@ class FormInputSerializer(serializers.ModelSerializer):
         model = FormInput
         fields = ('type', 'order', 'text', 'choices')
 
-
+# Used on validaating new Survey
 class SurveyCreateSerializer(serializers.ModelSerializer):
-    questions = FormInputSerializer(many=True)
+    questions = CreateFormInputSerializer(many=True)
 
     class Meta:
         model = Survey
-        fields = ('name', 'start_date', 'end_date', 'questions')
+        fields = ('id', 'name', 'start_date', 'end_date', 'questions')
+        # fields = ('id', 'name', 'start_date', 'end_date', 'questions')
 
 
+# Used by Participand
 class SurveyGetSerializer(serializers.ModelSerializer):
     questions = FormInputSerializer(many=True, source='forms', read_only=True)
 

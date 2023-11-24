@@ -34,18 +34,20 @@ def hello_world(request):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CreateSurveyView(APIView):
-    permission_classes = [IsAuthenticated]    
+    # permission_classes = [IsAuthenticated]    
     
     def post(self, request, *args, **kwargs):
         serializer = SurveyCreateSerializer(data=request.data)
-        user = request.user
+        user = SystemUser.objects.get(id = 1)
+        # user = request.user
         if serializer.is_valid():
             # Start Database transaction
             with transaction.atomic():
                 survey = Survey.objects.create(
                     name=serializer.validated_data['name'], # type: ignore
                     start_date=serializer.validated_data['start_date'], # type: ignore
-                    end_date=serializer.validated_data['end_date'] # type: ignore
+                    end_date=serializer.validated_data['end_date'], # type: ignore
+                    status = SurveyStatus.objects.get(id=1)
                 )
                 for form_data in serializer.validated_data['questions']: # type: ignore
                     form_input = FormInput.objects.create(
@@ -64,9 +66,12 @@ class CreateSurveyView(APIView):
                         )                
                 # TODO add current user as owner of survey
                 permission = SurveyPermissions.objects.get(id=1)
-                SurveyOwners.objects.create(user=request.user, survey=survey, permissions=permission)
+                SurveyOwners.objects.create(user=user, survey=survey, permissions=permission)
                 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)        
+            response_data = serializer.data
+            response_data['id'] = survey.id # type: ignore
+                
+            return Response(response_data, status=status.HTTP_201_CREATED)        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class GetAllSurveyByOwnerView(APIView):

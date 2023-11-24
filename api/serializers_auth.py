@@ -10,7 +10,7 @@ class SystemUserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        user = SystemUser.objects.create_user(
+        user = SystemUser.objects.create_user( # type: ignore
             username=validated_data['username'],
             email=validated_data['email'],
             first_name=validated_data.get('first_name', ''),
