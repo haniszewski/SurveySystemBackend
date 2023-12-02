@@ -20,6 +20,21 @@ class CreateFormInputSerializer(serializers.ModelSerializer):
         model = FormInput
         fields = ('type', 'order', 'text', 'details', 'placeholder', 'choices')
 
+class SurveyPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveyPermissions
+        fields = ['id', 'name']
+
+class SurveyUserListSerializer(serializers.ModelSerializer):
+    permissions = serializers.SerializerMethodField()
+    class Meta:
+        model = Survey
+        fields = ['id', 'name', 'status', 'start_date', 'end_date', 'permissions']
+    def get_permissions(self, obj):
+        permission = SurveyPermissions.objects.filter(surveyowners__survey=obj).first()
+        if permission:
+            return SurveyPermissionsSerializer(permission).data
+        return None
 
 class FormInputSerializer(serializers.ModelSerializer):
     choices = FormInputChoiceSerializer(many=True, required=False)

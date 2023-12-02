@@ -34,7 +34,7 @@ def hello_world(request):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CreateSurveyView(APIView):
-    # permission_classes = [IsAuthenticated]    
+    permission_classes = [IsAuthenticated]    
     
     def post(self, request, *args, **kwargs):
         serializer = SurveyCreateSerializer(data=request.data)
@@ -75,8 +75,14 @@ class CreateSurveyView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class GetAllSurveyByOwnerView(APIView):
-    def get(self,request):
-        return HttpResponse("ok")
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        surveys = Survey.objects.filter(surveyowners__user=request.user).distinct()
+
+        serializer = SurveyUserListSerializer(surveys, many=True)
+
+        return Response(serializer.data)
     
 class ReadSurveyView(APIView):
     def post(self,request):
@@ -94,6 +100,7 @@ class SurveyGetView(APIView):
         
 class AnswerSubmissionView(APIView):
     def post(self, request, survey_id):
+        survey_session = SurveySession.objects.create()
         try:
             survey = Survey.objects.get(pk=survey_id)
         except Survey.DoesNotExist:
@@ -105,6 +112,7 @@ class AnswerSubmissionView(APIView):
 
         responses = []
         for answer_data in request.data['answers']:
+            answer_data['session'] = survey_session.id
             serializer = AnswerSubmissionSerializer(data=answer_data)
             if serializer.is_valid():
                 serializer.save()

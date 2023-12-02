@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+class SurveySession(models.Model):
+    id = models.AutoField(primary_key=True)
 
 class SystemUser(AbstractUser):
     first_name = models.CharField(max_length=30, blank=True)
@@ -78,4 +80,4 @@ class SurveyParticipantAnswer(models.Model):
     value_int = models.IntegerField(null=True)
     value_text = models.TextField(null=True)
     # participant = models.ForeignKey(SurveyParticipants, on_delete=models.PROTECT, null=True)
-    participant = models.IntegerField()
+    participant = models.ForeignKey(SurveySession, on_delete=models.CASCADE)
