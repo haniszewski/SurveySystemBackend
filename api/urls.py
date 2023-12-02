@@ -4,6 +4,7 @@ from rest_framework.schemas import get_schema_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views_auth import CreateUserView
+from .views_analysis import *
 from .views import hello_world, CreateSurveyView, ReadSurveyView, GetAllSurveyByOwnerView, SurveyGetView, AnswerSubmissionView
 
 urlpatterns = [
@@ -26,4 +27,5 @@ urlpatterns = [
     path('survey/<int:survey_id>/submit-answers/',
          AnswerSubmissionView.as_view(), name='submit-answers'),
     path('survey/get-all/', view=GetAllSurveyByOwnerView.as_view()),
+    path('surveys/<int:survey_id>/analysis/', AddUpdateSurveyAnalysis.as_view(), name='update-survey-analysis'),
 ]

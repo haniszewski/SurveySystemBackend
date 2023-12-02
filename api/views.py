@@ -20,26 +20,13 @@ def hello_world(request):
     return HttpResponse(content="OK")
 
 
- 
-# class CreateAccountView(APIView):
-#     def put(self, request):
-#         serializer = CreateAccountSerializer(data=request.data)
-#         if serializer.is_valid():
-#             try:
-#                 user = serializer.save()
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             except IntegrityError:
-#                 return Response({"detail": "Email already exists."}, status=status.HTTP_409_CONFLICT)
-            
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 class CreateSurveyView(APIView):
     permission_classes = [IsAuthenticated]    
     
     def post(self, request, *args, **kwargs):
         serializer = SurveyCreateSerializer(data=request.data)
-        user = SystemUser.objects.get(id = 1)
-        # user = request.user
+        # user = SystemUser.objects.get(id = 1)
+        user = request.user
         if serializer.is_valid():
             # Start Database transaction
             with transaction.atomic():
@@ -64,7 +51,6 @@ class CreateSurveyView(APIView):
                             text=choice_data['text'],
                             order=choice_data['order']
                         )                
-                # TODO add current user as owner of survey
                 permission = SurveyPermissions.objects.get(id=1)
                 SurveyOwners.objects.create(user=user, survey=survey, permissions=permission)
                 
@@ -76,12 +62,9 @@ class CreateSurveyView(APIView):
     
 class GetAllSurveyByOwnerView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         surveys = Survey.objects.filter(surveyowners__user=request.user).distinct()
-
         serializer = SurveyUserListSerializer(surveys, many=True)
-
         return Response(serializer.data)
     
 class ReadSurveyView(APIView):
