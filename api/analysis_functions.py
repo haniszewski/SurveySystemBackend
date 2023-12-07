@@ -14,13 +14,14 @@ def analyze_survey(survey_id):
     
     basic_analysis = analysis_schema.get('basic', [])
     
+    print('basic_analysis')
     print(basic_analysis)
 
     analysis_results = []
 
     for question_json_data in basic_analysis:
         order = question_json_data.get('order',None)
-        print(f'oderr {order}, survey {survey.id}') # type: ignore
+        print(f'oder {order}, survey {survey.id}') # type: ignore
         question_obj = FormInput.objects.get(survey = survey, order = order)
         
         print(question_obj.id) # type: ignore
@@ -36,21 +37,22 @@ def analyze_survey(survey_id):
         
         for answer in possible_answers:            
             answer_count = SurveyParticipantAnswer.objects.filter(choice=answer).count()
-
+            
             result = None
             
-            
-
             if question_json_data['display'] == 'count':
                 result = answer_count
             elif question_json_data['display'] == 'percentage':
                 result = calculate_percentage(answer_count, total_responses)
                 
             question_analysis = {
-                'answer': answer.id,
+                'answer': answer.pk,
                 'order': answer.order,
                 'result': result
             }
+            print('tutaj')
+            
+            print(question_analysis)
             answer_results.append(question_analysis)
             
         question_data = {
@@ -58,6 +60,8 @@ def analyze_survey(survey_id):
             'answers': answer_results
         }
         
+        analysis_results.append(question_data)
+        print('tutaj2')
         print(question_data)
 
 
