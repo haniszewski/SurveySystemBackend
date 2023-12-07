@@ -28,4 +28,6 @@ urlpatterns = [
          AnswerSubmissionView.as_view(), name='submit-answers'),
     path('survey/get-all/', view=GetAllSurveyByOwnerView.as_view()),
     path('surveys/<int:survey_id>/analysis/', AddUpdateSurveyAnalysis.as_view(), name='update-survey-analysis'),
+    path('surveys/<int:survey_id>/analyze/', RunSurveyAnalysis.as_view(), name='analyze-survey'),
+    path('surveys/<int:survey_id>/get-analysis-result/', GetAnalysisResult.as_view(), name='update-survey-analysis'),
 ]

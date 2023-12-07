@@ -42,6 +42,44 @@ class FormInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormInput
         fields = ('type', 'order', 'text', 'choices')
+        
+class FormInputSingleSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveyParticipantAnswer
+        fields = ['choice', 'participant']
+
+class FormInputMultiSelectSerializer(serializers.ModelSerializer):
+    choice = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=FormInputChoice.objects.all()
+    )
+    
+    def to_internal_value(self, data):
+        answer_data = data.get('answer')
+        if answer_data is not None:
+            data['choice'] = answer_data
+            del data['answer']  # Remove 'answer' to avoid unexpected field error
+
+        return super().to_internal_value(data)
+
+    class Meta:
+        model = SurveyParticipantAnswer
+        fields = ['choice', 'participant']
+
+    def create(self, validated_data):
+        choices = validated_data.pop('choice')
+        participant = validated_data.get('participant')
+
+        created_ids = []
+        for choice in choices:
+            survey_participant_answer = SurveyParticipantAnswer.objects.create(
+                choice=choice, participant=participant
+            )
+            created_ids.append(survey_participant_answer.pk)
+
+        return {'created_ids': created_ids}
+
+
 
 # Used on validaating new Survey
 class SurveyCreateSerializer(serializers.ModelSerializer):
@@ -65,10 +103,10 @@ class SurveyGetSerializer(serializers.ModelSerializer):
 class AnswerSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyParticipantAnswer
-        fields = ['choice', 'value_float', 'value_int', 'value_text']
+        fields = ['choice', 'value_float', 'value_int', 'value_text', 'participant']
 
     def validate(self, data):
-        choice = data.get('choice')
+        choice = data.get('answer')
         if choice and not FormInputChoice.objects.filter(form_input=choice.form_input).exists():
             raise serializers.ValidationError(
                 "Invalid choice for the question.")
