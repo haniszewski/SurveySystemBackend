@@ -1,6 +1,7 @@
 import json
 from controllers.models import *
 from django.db.models import Count, F
+from .serializers_analysis import *
 
 def calculate_percentage(count, total):
     return (count / total) * 100 if total > 0 else 0
@@ -12,7 +13,7 @@ def analyze_survey(survey_id):
     analysis_schema = survey.analysis_json
     
     
-    basic_analysis = analysis_schema.get('basic', [])
+    basic_analysis = analysis_schema.get('basic', []) # type: ignore
     
     print('basic_analysis')
     print(basic_analysis)
@@ -46,7 +47,7 @@ def analyze_survey(survey_id):
                 result = calculate_percentage(answer_count, total_responses)
                 
             question_analysis = {
-                'answer': answer.pk,
+                'answer': answer.text,
                 'order': answer.order,
                 'result': result
             }
@@ -56,7 +57,7 @@ def analyze_survey(survey_id):
             answer_results.append(question_analysis)
             
         question_data = {
-            'question': question_obj.id, # type: ignore
+            'question': FormInputSerializerToJson(question_obj).data, # type: ignore
             'answers': answer_results
         }
         
@@ -67,5 +68,5 @@ def analyze_survey(survey_id):
 
     # Update the survey instance
     print(analysis_results)
-    survey.analysis_result_json = analysis_results
+    survey.analysis_result_json = analysis_results # type: ignore
     survey.save()

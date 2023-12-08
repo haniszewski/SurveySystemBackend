@@ -34,13 +34,13 @@ class CreateSurveyView(APIView):
                 survey = Survey.objects.create(
                     name=serializer.validated_data['name'],  # type: ignore
                     # type: ignore
-                    start_date=serializer.validated_data['start_date'],
+                    start_date=serializer.validated_data['start_date'], # type: ignore
                     # type: ignore
-                    end_date=serializer.validated_data['end_date'],
+                    end_date=serializer.validated_data['end_date'], # type: ignore
                     status=SurveyStatus.objects.get(id=1)
                 )
                 # type: ignore
-                for form_data in serializer.validated_data['questions']:
+                for form_data in serializer.validated_data['questions']: # type: ignore
                     form_input = FormInput.objects.create(
                         survey=survey,
                         type=form_data['type'],
