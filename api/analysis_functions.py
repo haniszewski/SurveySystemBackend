@@ -49,9 +49,7 @@ def analyze_survey(survey_id):
             question_analysis = {
                 'answer': answer.text,
                 'order': answer.order,
-                'result': result,
-                'display': question_json_data['display'],
-                'type': question_json_data['type']
+                'result': result
             }
             print('tutaj')
             
@@ -60,7 +58,9 @@ def analyze_survey(survey_id):
             
         question_data = {
             'question': FormInputSerializerToJson(question_obj).data, # type: ignore
-            'answers': answer_results
+            'answers': answer_results,
+            'display': question_json_data['display'],
+            'type': question_json_data['type']
         }
         
         analysis_results.append(question_data)
