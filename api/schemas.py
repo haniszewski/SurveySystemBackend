@@ -2,14 +2,14 @@ from marshmallow import Schema, fields, validate
 
 
 class AllQuestionAnalysisSchema(Schema):
-    type = fields.Str(validate=validate.OneOf(['percentage']))
+    type = fields.Str(validate=validate.OneOf(['bar', 'pie']))
     display = fields.Str(validate=validate.OneOf(['percentage', 'count']))
     show_total = fields.Bool()
     min_score = fields.Integer(required=False)
 
 class BasicQuestionAnalysisSchema(Schema):
     order = fields.Integer(required=True)
-    type = fields.Str(validate=validate.OneOf(['percentage']))
+    type = fields.Str(validate=validate.OneOf(['bar', 'pie']))
     display = fields.Str(validate=validate.OneOf(['percentage', 'count']))
     show_total = fields.Bool()
     min_score = fields.Integer(required=False)
