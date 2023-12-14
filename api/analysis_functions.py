@@ -49,7 +49,9 @@ def analyze_survey(survey_id):
             question_analysis = {
                 'answer': answer.text,
                 'order': answer.order,
-                'result': result
+                'result': result,
+                'display': question_json_data['display'],
+                'type': question_json_data['type']
             }
             print('tutaj')
             
