@@ -30,11 +30,13 @@ class Survey(models.Model):
     
     def update_status_by_date(self,d_date):
         if d_date < self.start_date:
-            self.status = 1
+            self.status_id = 1
         elif d_date <= self.end_date:
-            self.status = 3
+            self.status_id = 3
         else:
-            self.status = 4
+            self.status_id = 4
+            
+        self.save()
 
 class SurveyPermissions(models.Model):
     name = models.CharField(
