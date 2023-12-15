@@ -13,22 +13,28 @@ class SystemUser(AbstractUser):
 class SurveyStatus(models.Model):
     name = models.CharField(max_length=255)
 
-
 class Survey(models.Model):
     name = models.CharField(
         max_length=255, help_text="Enter the name of the survey")
     status = models.ForeignKey(SurveyStatus, on_delete=models.PROTECT)
     start_date = models.DateField(
-        help_text="Enter the start date of the survey", null=True)
+        help_text="Enter the start date of the survey")
     end_date = models.DateField(
-        help_text="Enter the end date of the survey", null=True)
+        help_text="Enter the end date of the survey")
     salt = models.CharField(
         max_length=255, help_text="abc", default="abc", null=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     validation_json = models.JSONField(null=True)
     analysis_json = models.JSONField(null=True)
     analysis_result_json = models.JSONField(null=True)
-
+    
+    def update_status_by_date(self,d_date):
+        if d_date < self.start_date:
+            self.status = 1
+        elif d_date <= self.end_date:
+            self.status = 3
+        else:
+            self.status = 4
 
 class SurveyPermissions(models.Model):
     name = models.CharField(

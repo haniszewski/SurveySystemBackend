@@ -14,6 +14,8 @@ from .serializers import *
 from django.contrib.auth.models import User
 from django.db import transaction
 
+import datetime
+from django.utils import timezone
 
 @require_http_methods(["GET", "POST"])
 def hello_world(request):
@@ -72,6 +74,8 @@ class GetAllSurveyByOwnerView(APIView):
     def get(self, request):
         surveys = Survey.objects.filter(
             surveyowners__user=request.user).distinct()
+        for survey in surveys:
+            survey.update_status_by_date(timezone.now().date())
         serializer = SurveyUserListSerializer(surveys, many=True)
         return Response(serializer.data)
 
@@ -93,11 +97,16 @@ class SurveyGetView(APIView):
 
 class AnswerSubmissionView(APIView):
     def post(self, request, survey_id):
-        survey_session = SurveySession.objects.create()
         try:
             survey = Survey.objects.get(pk=survey_id)
         except Survey.DoesNotExist:
             return Response({'error': 'Survey not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        d_today = datetime.date.today()
+        if d_today > survey.end_date or d_today < survey.start_date:
+            return Response({'error': 'Survey expired'}, status=status.HTTP_404_NOT_FOUND)
+        
+        survey_session = SurveySession.objects.create()
 
         questions = FormInput.objects.filter(survey=survey)
         if 'answers' not in request.data or len(request.data['answers']) != questions.count():

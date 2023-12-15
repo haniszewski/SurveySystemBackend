@@ -30,7 +30,8 @@ class AddUpdateSurveyAnalysis(APIView):
         if serializer.is_valid():
             survey.analysis_json = serializer.validated_data['analysis_schema'] # type: ignore
             survey.save()
-            return Response({'message': 'Analysis schema updated successfully'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Analysis schema updated successfully',
+                             'data': serializer.data}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
