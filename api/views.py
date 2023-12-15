@@ -89,6 +89,10 @@ class SurveyGetView(APIView):
     def get(self, request, pk):
         try:
             survey = Survey.objects.get(pk=pk)
+            d_today = datetime.date.today()
+            if d_today > survey.end_date or d_today < survey.start_date:
+                return Response({'error': 'Survey not valid in this timeline. Go meet Avengers'}, status=status.HTTP_404_NOT_FOUND)
+        
             serializer = SurveyGetSerializer(survey)
             return Response(serializer.data)
         except Survey.DoesNotExist:
