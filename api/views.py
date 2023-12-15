@@ -86,6 +86,14 @@ class ReadSurveyView(APIView):
 
 
 class SurveyGetView(APIView):
+    def post(self, request, pk):
+        try:
+            survey = Survey.objects.get(pk=pk)
+            serializer = SurveyGetSerializer(survey)
+            return Response(serializer.data)
+        except Survey.DoesNotExist:
+            return Response({'error': 'Survey not found'}, status=status.HTTP_404_NOT_FOUND)
+
     def get(self, request, pk):
         try:
             survey = Survey.objects.get(pk=pk)
